@@ -1,14 +1,3 @@
-/**
- * MQTT SERVICE
- * Smart Street Light Dashboard
- *
- * Browser → EMQX Cloud using MQTT over WebSocket Secure.
- *
- * IMPORTANT:
- * Use a dedicated READ-ONLY dashboard MQTT account.
- * Do NOT use your ESP32's publishing credentials here.
- */
-
 class MQTTService {
   constructor() {
     this.client = null;
