@@ -1,14 +1,4 @@
-/**
- * App - Main UI Controller for LoRa Smart Street Light Dashboard
- * Connects DataService, Charts, Visualizer, DOM updates, and Event Handlers
- */
-
 document.addEventListener('DOMContentLoaded',async () => {
-
-    // ==========================================================
-    // AUTHENTICATION GUARD
-    // Dashboard will NOT initialize without a valid session.
-    // ==========================================================
 
     const authenticated =
       await window.requireAuthentication();
@@ -17,18 +7,13 @@ document.addEventListener('DOMContentLoaded',async () => {
       return;
     }
 
-
-    // ==========================================================
-    // INITIALIZE DASHBOARD
-    // ==========================================================
-
     const dataService = window.dataService;
 
     const chartsManager = new window.ChartsManager(dataService);
 
     const visualizer = new window.SmartLightVisualizer(dataService);
     
-  // In-memory Alerts Store
+
   let alerts = [
     {
       id: 1,
@@ -46,10 +31,6 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
   ];
 
-  // =========================================================================
-  // DOM Elements
-  // =========================================================================
-  // Header
   const nodeSelect = document.getElementById('nodeSelect');
   const txtGatewayStatus = document.getElementById('txtGatewayStatus');
   const dotGateway = document.getElementById('dotGateway');
@@ -57,8 +38,6 @@ document.addEventListener('DOMContentLoaded',async () => {
   const txtLastUpdate = document.getElementById('txtLastUpdate');
   const btnMasterOverride = document.getElementById('btnMasterOverride');
   const txtOverrideMode = document.getElementById('txtOverrideMode');
-
-  // Top 8 Telemetry Cards
   const valVoltage = document.getElementById('valVoltage');
   const barVoltage = document.getElementById('barVoltage');
   const valCurrent = document.getElementById('valCurrent');
@@ -82,21 +61,15 @@ document.addEventListener('DOMContentLoaded',async () => {
   const badgeNodeStatus = document.getElementById('badgeNodeStatus');
   const valNodeStatus = document.getElementById('valNodeStatus');
   const valNodeUptime = document.getElementById('valNodeUptime');
-
-  // Logic Flow Cards
   const flowCardDay = document.getElementById('flowCardDay');
   const flowCardNightMotion = document.getElementById('flowCardNightMotion');
   const flowCardNightNoMotion = document.getElementById('flowCardNightNoMotion');
-
-  // Demo Toolbar
   const btnToggleDayNight = document.getElementById('btnToggleDayNight');
   const txtDayNightToggle = document.getElementById('txtDayNightToggle');
   const iconDayNight = document.getElementById('iconDayNight');
   const btnTriggerMotion = document.getElementById('btnTriggerMotion');
   const sliderBrightness = document.getElementById('sliderBrightness');
   const lblSliderVal = document.getElementById('lblSliderVal');
-
-  // Detailed Node Section
   const selectedNodeTitle = document.getElementById('selectedNodeTitle');
   const nodeDetId = document.getElementById('nodeDetId');
   const nodeDetLdrRaw = document.getElementById('nodeDetLdrRaw');
@@ -111,16 +84,12 @@ document.addEventListener('DOMContentLoaded',async () => {
   const nodeDetSnr = document.getElementById('nodeDetSnr');
   const nodeDetLastPkt = document.getElementById('nodeDetLastPkt');
   const nodeDetPacketCount = document.getElementById('nodeDetPacketCount');
-
-  // Multi-Node Panel (permanent, horizontally scrollable)
   const multiNodeOverviewPanel = document.getElementById('multiNodeOverviewPanel');
   const multiNodeContainer = document.getElementById('multiNodeContainer');
   const btnScrollNodesLeft = document.getElementById('btnScrollNodesLeft');
   const btnScrollNodesRight = document.getElementById('btnScrollNodesRight');
   const meshNodeCount = document.getElementById('meshNodeCount');
   const chartsPanel = document.getElementById('chartsPanel');
-
-  // Extra live labels
   const lblMotionTriggerCount = document.getElementById('lblMotionTriggerCount');
   const lblNodeHealthName = document.getElementById('lblNodeHealthName');
   const lblNodeLoss = document.getElementById('lblNodeLoss');
@@ -129,8 +98,6 @@ document.addEventListener('DOMContentLoaded',async () => {
   const lblNodeHexId = document.getElementById('lblNodeHexId');
   const loraNetNodeTag = document.getElementById('loraNetNodeTag');
   const flowFaultBanner = document.getElementById('flowFaultBanner');
-
-  // Energy Analytics & Comparison
   const statEnergyToday = document.getElementById('statEnergyToday');
   const statEnergyWeek = document.getElementById('statEnergyWeek');
   const statEnergyMonth = document.getElementById('statEnergyMonth');
@@ -144,8 +111,6 @@ document.addEventListener('DOMContentLoaded',async () => {
   const gaugeSavingsCircle = document.getElementById('gaugeSavingsCircle');
   const gaugeSavingText = document.getElementById('gaugeSavingText');
   const txtCo2Saved = document.getElementById('txtCo2Saved');
-
-  // LoRa Network Metrics
   const loraNetNodeId = document.getElementById('loraNetNodeId');
   const loraNetRssi = document.getElementById('loraNetRssi');
   const loraNetSnr = document.getElementById('loraNetSnr');
@@ -154,15 +119,11 @@ document.addEventListener('DOMContentLoaded',async () => {
   const loraNetLossRate = document.getElementById('loraNetLossRate');
   const loraNetLastTime = document.getElementById('loraNetLastTime');
   const loraNetStatus = document.getElementById('loraNetStatus');
-
-  // Alerts
   const alertCountBadge = document.getElementById('alertCountBadge');
   const alertsListContainer = document.getElementById('alertsListContainer');
   const selectTestFault = document.getElementById('selectTestFault');
   const btnInjectFault = document.getElementById('btnInjectFault');
   const btnClearAlerts = document.getElementById('btnClearAlerts');
-
-  // Modals
   const gatewayModal = document.getElementById('gatewayModal');
   const btnOpenGatewayModal = document.getElementById('btnOpenGatewayModal');
   const btnCloseGatewayModal = document.getElementById('btnCloseGatewayModal');
@@ -172,7 +133,6 @@ document.addEventListener('DOMContentLoaded',async () => {
   const cfgGatewayIp = document.getElementById('cfgGatewayIp');
   const cfgGatewayPort = document.getElementById('cfgGatewayPort');
   const cfgConnStatusText = document.getElementById('cfgConnStatusText');
-
   const addNodeModal = document.getElementById('addNodeModal');
   const btnOpenAddNodeModal = document.getElementById('btnOpenAddNodeModal');
   const btnCloseAddNodeModal = document.getElementById('btnCloseAddNodeModal');
@@ -181,14 +141,9 @@ document.addEventListener('DOMContentLoaded',async () => {
   const newNodeId = document.getElementById('newNodeId');
   const newNodeLocation = document.getElementById('newNodeLocation');
   const newNodeFreq = document.getElementById('newNodeFreq');
-
   const btnPauseCharts = document.getElementById('btnPauseCharts');
   const timeBtns = document.querySelectorAll('.time-btn');
-  
-
-  // =========================================================================
-  // Telemetry Subscriber: Update UI on every data packet
-  // =========================================================================
+    
   dataService.on('telemetry', (node) => {
     updateTopLiveCards(node);
     updateLogicState(node);
@@ -198,10 +153,8 @@ document.addEventListener('DOMContentLoaded',async () => {
     updateLastUpdatedTicker();
   });
 
-  // Every simulation step updates ALL nodes -> keep the mesh cards live
   dataService.on('nodesUpdate', () => updateMeshCards());
 
-  // LIVE runtime + PIR hold countdown (1 s resolution)
   dataService.on('runtimeTick', (t) => {
     statRuntime.textContent = t.formatted;
     valNodeUptime.textContent = t.formatted;
@@ -214,7 +167,6 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
   });
 
-  // Gateway status change
   dataService.on('gatewayStatus', (status) => {
     if (status.online) {
       txtGatewayStatus.textContent = `ONLINE (${status.ip})`;
@@ -227,34 +179,27 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
   });
 
-  // Dynamic alerts
   dataService.on('alert', (alert) => {
     alerts.unshift(alert);
     renderAlerts();
   });
 
-  // Node list change
   dataService.on('nodeListChange', (allNodes) => {
     updateNodeDropdown(allNodes);
     syncMeshGrid();
   });
 
-  // =========================================================================
-  // Update Functions
-  // =========================================================================
   function updateTopLiveCards(node) {
-    // 1. Voltage
+
     valVoltage.textContent = node.voltage.toFixed(2);
     const vPercent = Math.min(100, Math.max(0, ((node.voltage - 3.0) / 3.0) * 100));
     barVoltage.style.width = `${vPercent}%`;
 
-    // 2. Current
     valCurrent.textContent = node.current_ma;
     const cPercent = Math.min(100, (node.current_ma / 800) * 100);
     barCurrent.style.width = `${cPercent}%`;
     lblCurrentState.textContent = node.current_ma > 500 ? 'Peak Draw' : (node.current_ma > 50 ? 'Active Draw' : 'Idle Standby');
 
-    // 3. Power
     valPower.textContent = node.power_w.toFixed(2);
     const pPercent = Math.min(100, (node.power_w / 5.0) * 100);
     barPower.style.width = `${pPercent}%`;
@@ -262,12 +207,12 @@ document.addEventListener('DOMContentLoaded',async () => {
     lblPowerSaved.textContent = savedPct >= 0 ? `-${savedPct}% Saved` : `+${Math.abs(savedPct)}% Over`;
     lblPowerSaved.style.color = savedPct >= 0 ? 'var(--status-normal)' : 'var(--status-critical)';
 
-    // 4. Energy Today
+  
     valEnergy.textContent = node.energy_kwh.toFixed(4);
     const ePercent = Math.min(100, (node.energy_kwh / 0.082) * 100);
     barEnergy.style.width = `${ePercent}%`;
 
-    // 5. Light Status
+  
     if (node.light_status === 1) {
       badgeLightStatus.className = 'badge-status on';
       valLightStatus.textContent = 'ON';
@@ -278,7 +223,7 @@ document.addEventListener('DOMContentLoaded',async () => {
     lblLightDuty.textContent = `Duty: ${node.brightness_pct}%`;
     barLightDuty.style.width = `${node.brightness_pct}%`;
 
-    // 6. Brightness
+
     valBrightness.textContent = node.brightness_pct;
     barBrightness.style.width = `${node.brightness_pct}%`;
     if (node.fault === 'dayburn') {
@@ -292,7 +237,7 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
     lblBrightnessMode.style.color = node.fault === 'dayburn' ? 'var(--status-critical)' : '';
 
-    // 7. Motion (fixed-width footer: short hold label + trigger counter that never moves)
+ 
     lblMotionTriggerCount.textContent = `Triggers: ${node.pir_triggers}`;
     if (node.motion_detected === 1) {
       badgeMotion.className = 'badge-status motion';
@@ -306,7 +251,7 @@ document.addEventListener('DOMContentLoaded',async () => {
       barMotionTimer.style.width = '0%';
     }
 
-    // 8. Node Status
+
     lblNodeHealthName.textContent = `${node.id} Health`;
     if (!node.is_online) {
       badgeNodeStatus.className = 'badge-status off';
@@ -325,7 +270,7 @@ document.addEventListener('DOMContentLoaded',async () => {
   }
 
   function updateLogicState(node) {
-    // Clear active / fault from all
+
     [flowCardDay, flowCardNightMotion, flowCardNightNoMotion].forEach(c => c.classList.remove('active', 'fault'));
 
     const faultText = {
@@ -345,7 +290,7 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
 
     if (node.fault === 'dayburn') {
-      // Light is ON while the logic says DAY -> highlight Mode 1 as a FAULT, not as the active state
+  
       flowCardDay.classList.add('fault');
     } else if (node.ambient_cond === 'DAY' || node.ldr_lux > 150) {
       flowCardDay.classList.add('active');
@@ -393,7 +338,6 @@ document.addEventListener('DOMContentLoaded',async () => {
     statEnergyWeek.innerHTML = `${kwhWeek.toFixed(3)} <span class="analytics-stat-unit">kWh</span>`;
     statEnergyMonth.innerHTML = `${kwhMonth.toFixed(3)} <span class="analytics-stat-unit">kWh</span>`;
 
-    // Conventional baseline: 5W constant * 12 hours = 0.060 to 0.082 kWh
     const conventionalKwh = 0.082;
     const savedKwh = Math.max(0, conventionalKwh - kwhToday);
     const savingPct = Math.min(85, Math.max(50, ((savedKwh / conventionalKwh) * 100))).toFixed(1);
@@ -405,12 +349,12 @@ document.addEventListener('DOMContentLoaded',async () => {
     const smartBarPct = Math.min(100, Math.max(15, (kwhToday / conventionalKwh) * 100));
     barCompSmart.style.width = `${smartBarPct}%`;
 
-    // Gauge circle animation (circumference = 2 * PI * 50 = 314)
+  
     const offset = 314 - (314 * (savingPct / 100));
     gaugeSavingsCircle.style.strokeDashoffset = offset;
     gaugeSavingText.textContent = `${savingPct}%`;
 
-    // Carbon offset: ~0.82 kg CO2 per kWh in municipal grids
+
     const co2Kg = (savedKwh * 0.82).toFixed(3);
     txtCo2Saved.textContent = `${co2Kg} kg CO₂ / day`;
   }
@@ -485,11 +429,6 @@ document.addEventListener('DOMContentLoaded',async () => {
     });
   }
 
-  // ---------------------------------------------------------------------
-  // Smart City Lighting Mesh - permanent, horizontally scrollable.
-  // Cards are created once and then updated IN PLACE, so the scroll position
-  // and hover/click state are never reset by the 1.5 s telemetry refresh.
-  // ---------------------------------------------------------------------
   const meshCards = new Map();
 
   function buildMeshCard(node) {
@@ -530,7 +469,7 @@ document.addEventListener('DOMContentLoaded',async () => {
     meshNodeCount.textContent = `${nodes.length} nodes`;
     updateMeshCards();
     if (added && nodes.length > 4) {
-      // bring a newly registered node into view
+    
       multiNodeContainer.scrollTo({ left: multiNodeContainer.scrollWidth, behavior: 'smooth' });
     }
   }
@@ -576,8 +515,6 @@ document.addEventListener('DOMContentLoaded',async () => {
     });
   }
 
-  // Show / hide the "Telemetry Stream & Analytical Waveforms" panel.
-  // Hidden while "All Nodes Overview" is selected, back as soon as a node is chosen.
   function setChartsVisible(visible) {
     chartsPanel.classList.toggle('is-hidden', !visible);
     if (visible) {
@@ -588,7 +525,6 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
   }
 
-  // Select a single node (from the dropdown OR by clicking its mesh card)
   async function selectNode(nodeId) {
    if (!nodeId || nodeId === 'ALL') {
      return;
@@ -596,13 +532,10 @@ document.addEventListener('DOMContentLoaded',async () => {
 
    nodeSelect.value = nodeId;
 
-   // Show charts immediately
     setChartsVisible(true);
 
-   // Select the node through DataService
    await dataService.selectNode(nodeId);
 
-   // Update mesh highlighting
    updateMeshCards();
   }
  
@@ -623,15 +556,10 @@ document.addEventListener('DOMContentLoaded',async () => {
     nodeSelect.value = currentVal;
   }
 
-  // =========================================================================
-  // User Actions & Event Listeners
-  // =========================================================================
-
-  // Node Selection Change
   nodeSelect.addEventListener('change', async (e) => {
     const val = e.target.value;
     if (val === 'ALL') {
-      // Overview: the mesh stays on screen, the waveform panel is hidden for now
+
       setChartsVisible(false);
       updateMeshCards();
     } else {
@@ -639,7 +567,6 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
   });
 
-  // Mesh horizontal scroll buttons
   btnScrollNodesLeft.addEventListener('click', () => {
     multiNodeContainer.scrollBy({ left: -330, behavior: 'smooth' });
   });
@@ -647,15 +574,15 @@ document.addEventListener('DOMContentLoaded',async () => {
     multiNodeContainer.scrollBy({ left: 330, behavior: 'smooth' });
   });
 
-  // PIR Motion Trigger (Demo viva action)
+
   btnTriggerMotion.addEventListener('click', () => {
     dataService.triggerMotion(10);
-    // Button click animation
+
     btnTriggerMotion.style.transform = 'scale(0.96)';
     setTimeout(() => { btnTriggerMotion.style.transform = 'scale(1)'; }, 150);
   });
 
-  // Day/Night Toggle
+
   btnToggleDayNight.addEventListener('click', () => {
     const isDay = dataService.toggleDayNight();
     if (isDay) {
@@ -667,14 +594,14 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
   });
 
-  // Manual Brightness Slider
+
   sliderBrightness.addEventListener('input', (e) => {
     const val = parseInt(e.target.value, 10);
     lblSliderVal.textContent = `${val}%`;
     dataService.setManualBrightness(val);
   });
 
-  // Emergency / Master Override Button
+
   btnMasterOverride.addEventListener('click', () => {
     const newOverride = !dataService.isMasterOverride;
     dataService.setMasterOverride(newOverride, parseInt(sliderBrightness.value, 10));
@@ -687,18 +614,18 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
   });
 
-  // Poll Node Button
+
   document.getElementById('btnRefreshNodeData')?.addEventListener('click', () => {
     dataService.simulationStep();
   });
 
-  // Pause Charts Button
+
   btnPauseCharts.addEventListener('click', () => {
     const paused = chartsManager.togglePause();
     btnPauseCharts.textContent = paused ? '▶ Resume Stream' : '⏸ Pause Stream';
   });
 
-  // Time Range Buttons
+
   timeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       timeBtns.forEach(b => b.classList.remove('active'));
@@ -707,7 +634,7 @@ document.addEventListener('DOMContentLoaded',async () => {
     });
   });
 
-  // Fault Injection
+
   btnInjectFault.addEventListener('click', () => {
     const faultType = selectTestFault.value;
     if (faultType !== 'none') {
@@ -716,14 +643,14 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
   });
 
-  // Clear Alerts
+
   btnClearAlerts.addEventListener('click', () => {
     alerts = [];
     renderAlerts();
-    dataService.clearFaults(); // also resets every injected fault back to normal
+    dataService.clearFaults();
   });
 
-  // Gateway Modal Handlers
+
   btnOpenGatewayModal.addEventListener('click', () => gatewayModal.classList.add('open'));
   btnCloseGatewayModal.addEventListener('click', () => gatewayModal.classList.remove('open'));
   gatewayModal.addEventListener('click', (e) => {
@@ -749,7 +676,7 @@ document.addEventListener('DOMContentLoaded',async () => {
     gatewayModal.classList.remove('open');
   });
 
-  // Add Node Modal Handlers
+
   btnOpenAddNodeModal?.addEventListener('click', () => addNodeModal.classList.add('open'));
   btnCloseAddNodeModal.addEventListener('click', () => addNodeModal.classList.remove('open'));
   btnCancelAddNode.addEventListener('click', () => addNodeModal.classList.remove('open'));
@@ -770,17 +697,14 @@ document.addEventListener('DOMContentLoaded',async () => {
     }
   });
 
-  // Keyboard shortcut: Escape closes modals
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       gatewayModal.classList.remove('open');
       addNodeModal.classList.remove('open');
     }
   });
-  // ============================================================
-  // LOGOUT
-  // ============================================================
-
+    
   const btnLogout =
   document.getElementById('btnLogout');
 
@@ -796,7 +720,7 @@ document.addEventListener('DOMContentLoaded',async () => {
   );
 
  }
-  // Initial renders
+
   syncMeshGrid();
   renderAlerts();
   const usingSupabase = dataService.connectionMode === 'supabase';
