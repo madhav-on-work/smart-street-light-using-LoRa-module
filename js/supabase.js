@@ -1,18 +1,3 @@
-/**
- * SUPABASE CLIENT CONFIGURATION
- *
- * IMPORTANT:
- *
- * This file may contain the Supabase PUBLISHABLE key.
- *
- * NEVER put:
- * - service_role key
- * - sb_secret_ key
- * - database password
- *
- * inside this file.
- */
-
 const SUPABASE_URL =
   'https://uwyhgwjhvatkzqqcetlj.supabase.co';
 
