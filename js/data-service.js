@@ -1,28 +1,12 @@
-/**
- * DataService - Telemetry & Hardware Communication Layer
- * LoRa-Based Smart Street Light Automation Node & Gateway
- * 
- * Supports:
- * 1. Realistic Multi-Node IoT Simulation Engine (for viva, demo & offline mode)
- * 2. Real ESP32 Gateway WebSocket Connection (ws://<ip>:81/ws)
- * 3. Real ESP32 Gateway HTTP REST Polling (http://<ip>/api/telemetry)
- */
-
-// Simulation tuning ---------------------------------------------------------
-const SIM_STEP_MS = 1500;        // one telemetry packet every 1.5 s
-const HISTORY_MAX = 2400;        // 1 hour of samples per node (1.5 s each)
-// Energy is integrated with this time acceleration so the kWh curve visibly
-// moves during a demo (1 real second counts as ENERGY_TIME_SCALE seconds).
-// Set to 1 for strictly real-time integration.
+const SIM_STEP_MS = 1500;      
+const HISTORY_MAX = 2400;        
 const ENERGY_TIME_SCALE = 30;
-const OUTAGE_SECONDS = 6;        // simulated grid outage length
-const OFFLINE_SECONDS = 15;      // simulated node disconnect length
+const OUTAGE_SECONDS = 6;        
+const OFFLINE_SECONDS = 15;    
 
 class DataService {
   constructor() {
-    // Demo telemetry starts locally so charts remain useful before hardware or
-    // database rows are available. Supabase remains the selectable live source.
-    this.connectionMode = 'sim'; // 'sim', 'supabase'
+    this.connectionMode = 'sim'; 
     this.gatewayIp = '192.168.1.150';
     this.gatewayPort = 81;
     this.pollInterval = 1500;
@@ -31,7 +15,7 @@ class DataService {
     this.runtimeTimer = null;
     this.isGatewayOnline = true;
     
-    // SUPABASE
+
     this.supabaseChannel = null;
     this.supabaseReady = false;
     this.supabaseLoading = false;
@@ -40,7 +24,7 @@ class DataService {
     this.supabaseRealtimeBuffer = [];
     this.supabaseSeenRows = new Set();
 
-    // Listeners
+ 
     this.listeners = {
       telemetry: [],
       alert: [],
@@ -51,7 +35,7 @@ class DataService {
       selectionChange: []
     };
 
-    // Node registry
+
     this.nodes = {
       N1: {
         id: 'N1',
@@ -62,13 +46,13 @@ class DataService {
         current_ma: 320,
         power_w: 1.59,
         energy_kwh: 0.024,
-        light_status: 1, // 1 = ON, 0 = OFF
+        light_status: 1, 
         brightness_pct: 70,
         motion_detected: 1,
-        motion_timer: 8, // seconds remaining
+        motion_timer: 8, 
         ldr_raw: 382,
         ldr_lux: 14.2,
-        ambient_cond: 'NIGHT', // 'DAY', 'DUSK', 'NIGHT'
+        ambient_cond: 'NIGHT', 
         lora_rssi: -74,
         lora_snr: 8.5,
         packet_count: 1482,
@@ -76,7 +60,7 @@ class DataService {
         last_packet_time: new Date(),
         uptime_seconds: 67335,
         is_online: true,
-        fault: null, // 'overcurrent', 'lowvoltage', 'sensorfail', 'dayburn', 'poweroutage', 'nodeoffline', 'lorafail'
+        fault: null,
         pir_triggers: 42,
         outage_seconds: 0,
         offline_seconds: 0
@@ -172,17 +156,12 @@ class DataService {
     this.overrideBrightness = 70;
     this.forceDaytime = false;
 
-    // Per-node rolling history for the charts (so every node keeps its own curves)
     this.histories = {};
     Object.values(this.nodes).forEach(n => this._createHistory(n));
-     
-    
-    // Start simulation loops
-    
-    // Start runtime ticker
+
     this.startRuntimeTicker();
 
-    // Start the selected data source
+ 
     if (this.connectionMode === 'supabase') {
         this.startSupabase();
        } else {
@@ -190,9 +169,6 @@ class DataService {
      }
   }
 
-  // ======================================================================
-  // History (per node)
-  // ======================================================================
   get history() {
     return this.histories[this.selectedNodeId] || this.histories[Object.keys(this.nodes)[0]];
   }
@@ -201,7 +177,6 @@ class DataService {
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
-  // Pre-seed 30 samples so a node's charts start populated
   _createHistory(node) {
     const h = { labels: [], voltage: [], current: [], power: [], brightness: [], ldr: [], energy: [] };
     const now = Date.now();
@@ -234,7 +209,6 @@ class DataService {
     }
   }
 
-  // Average / peak power over the node's recorded history
   getPowerStats(nodeId) {
     const h = this.histories[nodeId || this.selectedNodeId];
     if (!h || h.power.length === 0) return { avg: 0, peak: 0 };
@@ -242,7 +216,6 @@ class DataService {
     return { avg: sum / h.power.length, peak: Math.max(...h.power) };
   }
 
-  // Format seconds to HH:MM:SS
   formatHHMMSS(totalSeconds) {
     const sec = Math.max(0, Math.floor(totalSeconds));
     const h = Math.floor(sec / 3600).toString().padStart(2, '0');
@@ -251,9 +224,6 @@ class DataService {
     return `${h}:${m}:${s}`;
   }
 
-  // ======================================================================
-  // 1-second ticker: LIVE runtime, PIR hold countdown, outage/offline recovery
-  // ======================================================================
   startRuntimeTicker() {
     if (this.runtimeTimer) clearInterval(this.runtimeTimer);
     this.runtimeTimer = setInterval(() => {
@@ -262,19 +232,19 @@ class DataService {
       let meshChanged = false;
 
       Object.values(this.nodes).forEach(n => {
-        // --- Power outage: runtime is held at 0 until the grid comes back ---
+
         if (n.fault === 'poweroutage') {
           n.uptime_seconds = 0;
           n.outage_seconds -= 1;
           if (n.outage_seconds <= 0) {
             this._restorePower(n);
             meshChanged = true;
-            if (n === active) activeMotionEnded = true; // forces a telemetry refresh
+            if (n === active) activeMotionEnded = true; 
           }
           return;
         }
 
-        // --- Node disconnected: waits, then re-joins the LoRa network ---
+   
         if (!n.is_online) {
           n.offline_seconds -= 1;
           if (n.offline_seconds <= 0) {
@@ -285,10 +255,10 @@ class DataService {
           return;
         }
 
-        // --- Live runtime ---
+       
         n.uptime_seconds += 1;
 
-        // --- PIR hold countdown (true 1-second resolution) ---
+ 
         if (n.motion_timer > 0) {
           n.motion_timer -= 1;
           if (n.motion_timer <= 0) {
@@ -301,8 +271,6 @@ class DataService {
         }
       });
 
-      // Publish runtime for the currently selected node. The old code
-      // referenced an undefined `id` outside the forEach loop.
       if (active) {
         this.emit('runtimeTick', {
           node_id: active.id,
@@ -322,7 +290,7 @@ class DataService {
   _restorePower(node) {
     node.fault = null;
     node.outage_seconds = 0;
-    node.uptime_seconds = 0; // runtime restarts from zero after every outage
+    node.uptime_seconds = 0; 
     this._stepNode(node, new Date());
     this.emit('alert', {
       id: Date.now(),
@@ -348,7 +316,7 @@ class DataService {
     });
   }
 
-  // Clear every injected fault and bring all nodes back to normal
+
   clearFaults() {
     Object.values(this.nodes).forEach(n => {
       if (n.fault || !n.is_online) {
@@ -363,7 +331,7 @@ class DataService {
     this.emit('telemetry', this.getSelectedNode());
   }
 
-  // Event Subscription
+
   on(event, callback) {
     if (!this.listeners[event]) this.listeners[event] = [];
     this.listeners[event].push(callback);
@@ -375,7 +343,6 @@ class DataService {
     }
   }
 
-  // Set active target node
  async selectNode(id) {
 
     if (!this.nodes[id]) {
@@ -384,14 +351,12 @@ class DataService {
 
     this.selectedNodeId = id;
 
-    // Notify UI immediately
+
     this.emit(
         'selectionChange',
         id
     );
 
-    // If using Supabase,
-    // load the selected node's real history
     if (
         this.connectionMode === 'supabase' &&
         this.supabaseReady
@@ -429,10 +394,9 @@ class DataService {
     return Object.values(this.nodes);
   }
 
-  // Register a new node dynamically (N5, N6...)
   addNode(nodeId, location, channel) {
     if (this.nodes[nodeId]) {
-      return false; // already exists
+      return false; 
     }
     this.nodes[nodeId] = {
       id: nodeId,
@@ -467,51 +431,51 @@ class DataService {
     return true;
   }
 
-  // Smart Light Logic Engine (Autonomous State Machine)
+
   evaluateLightLogic(node) {
-    // 1. Check for Dayburn Anomaly Fault First
+ 
     if (node.fault === 'dayburn') {
       node.ambient_cond = 'DAY';
       node.ldr_lux = parseFloat((460 + Math.random() * 40).toFixed(1));
-      node.light_status = 1; // Unusually ON in broad daylight!
+      node.light_status = 1;
       node.brightness_pct = 100;
       return 'FAULT_DAYBURN';
     }
 
     if (this.isMasterOverride) {
-      // Manual Override Active
+   
       node.light_status = this.overrideBrightness > 0 ? 1 : 0;
       node.brightness_pct = this.overrideBrightness;
       return 'MANUAL_OVERRIDE';
     }
 
-    // Daylight Detection (LDR Lux check)
+
     if (this.forceDaytime || node.ambient_cond === 'DAY' || node.ldr_lux > 150) {
-      // Mode 1: DAY -> Light OFF
+     
       node.light_status = 0;
       node.brightness_pct = 0;
       return 'DAY_OFF';
     }
 
-    // Night Time Logic
+  
     if (node.motion_detected === 1) {
-      // Mode 2: NIGHT + MOTION -> 100% Brightness (Safety output)
+      
       node.light_status = 1;
       node.brightness_pct = 100;
       return 'NIGHT_MOTION';
     } else {
-      // Mode 3: NIGHT + NO MOTION -> 30% Brightness (Eco adaptive dimming)
+      
       node.light_status = 1;
       node.brightness_pct = 30;
       return 'NIGHT_NO_MOTION';
     }
   }
 
-  // Run one simulation step for a single node (sensors -> logic -> electrical)
+ 
   _stepNode(node, now) {
     if (!node.is_online) return;
 
-    // Ambient light: faults vs forced daytime vs natural night
+   
     if (node.fault === 'dayburn') {
       node.ambient_cond = 'DAY';
       node.ldr_lux = parseFloat((460 + Math.random() * 40).toFixed(1));
@@ -526,15 +490,15 @@ class DataService {
       node.ldr_raw = Math.round(370 + Math.random() * 30);
     }
 
-    // Embedded decision logic
+   
     this.evaluateLightLogic(node);
 
-    // Electrical model + fault overrides
+  
     if (node.fault === 'overcurrent') {
       node.voltage = parseFloat((4.96 + Math.random() * 0.06).toFixed(2));
-      node.current_ma = 920; // Critical overcurrent
+      node.current_ma = 920; 
     } else if (node.fault === 'lowvoltage') {
-      node.voltage = 3.95; // Critical undervoltage
+      node.voltage = 3.95; 
     } else if (node.fault === 'poweroutage') {
       node.voltage = 0.0;
       node.current_ma = 0;
@@ -549,23 +513,20 @@ class DataService {
       node.voltage = parseFloat((4.96 + Math.random() * 0.06).toFixed(2));
       node.current_ma = Math.round(480 + Math.random() * 15);
     } else {
-      // Normal physics: current follows PWM duty
-      // 0% => ~15 mA (ESP32 + sensors), 30% => 135-145 mA, 100% => 460-490 mA
+      
       node.voltage = parseFloat((4.96 + Math.random() * 0.06).toFixed(2));
       const baseCurrent = 15;
       const ledCurrent = (node.brightness_pct / 100) * 460;
       node.current_ma = Math.round(baseCurrent + ledCurrent + (Math.random() * 10 - 5));
     }
 
-    // Instantaneous Power: P = (V * I) / 1000
+   
     node.power_w = parseFloat(((node.voltage * node.current_ma) / 1000).toFixed(2));
 
-    // Cumulative Energy: E += P * dt. Kept at full precision (rounding to 4 d.p. used to
-    // swallow every increment) and time-accelerated so the curve moves during a demo.
     const dtHours = (SIM_STEP_MS / 1000) * ENERGY_TIME_SCALE / 3600;
     node.energy_kwh += (node.power_w * dtHours) / 1000;
 
-    // LoRa link
+
     node.packet_count += 1;
     if (node.fault === 'lorafail') {
       node.lora_rssi = Math.round(-112 - Math.random() * 6);
@@ -578,7 +539,7 @@ class DataService {
     node.last_packet_time = now;
   }
 
-  // Simulation step running periodically for ALL nodes
+
   simulationStep() {
     const now = new Date();
     const label = this._timeLabel(now);
@@ -612,11 +573,11 @@ class DataService {
     }
   }
 
-  // Interactive demo actions
+
   triggerMotion(seconds = 10) {
     const node = this.getSelectedNode();
     if (!node.is_online || node.fault === 'poweroutage') return;
-    if (node.motion_detected !== 1) node.pir_triggers += 1; // count rising edges only
+    if (node.motion_detected !== 1) node.pir_triggers += 1;
     node.motion_detected = 1;
     node.motion_timer = seconds;
     this._stepNode(node, new Date());
@@ -627,7 +588,7 @@ class DataService {
   toggleDayNight() {
     this.forceDaytime = !this.forceDaytime;
     const node = this.getSelectedNode();
-    // If Dayburn fault was active, clear it when toggling day/night manually
+
     if (node.fault === 'dayburn') {
       node.fault = null;
     }
@@ -665,8 +626,8 @@ class DataService {
       node.ambient_cond = 'DAY';
       node.ldr_lux = 480.0;
       node.ldr_raw = 3100;
-      node.light_status = 1; // It is ON!
-      node.brightness_pct = 100; // 100% full lumen in broad daylight!
+      node.light_status = 1; 
+      node.brightness_pct = 100; 
       node.current_ma = 485;
       node.power_w = parseFloat(((node.voltage * node.current_ma) / 1000).toFixed(2));
       this.emit('alert', {
@@ -682,7 +643,7 @@ class DataService {
       node.power_w = 0.0;
       node.light_status = 0;
       node.brightness_pct = 0;
-      node.uptime_seconds = 0; // RESET RUNTIME AFTER POWER OUTAGE
+      node.uptime_seconds = 0; 
       node.outage_seconds = OUTAGE_SECONDS;
       this.emit('alert', {
         id: Date.now(),
@@ -693,7 +654,7 @@ class DataService {
       });
     } else if (type === 'lowvoltage') {
       node.voltage = 3.95;
-      node.uptime_seconds = 0; // brown-out reboots the controller
+      node.uptime_seconds = 0;
       this.emit('alert', {
         id: Date.now(),
         type: 'critical',
@@ -742,7 +703,6 @@ class DataService {
       });
     }
 
-    // Apply immediately and drop a sample on the chart so the fault is visible at once
     if (node.is_online) {
       this._stepNode(node, new Date());
       this._pushHistory(node);
@@ -750,10 +710,7 @@ class DataService {
     this.emit('nodesUpdate', this.getAllNodes());
     this.emit('telemetry', node);
   }
-
-  // ======================================================================
-  // Real hardware: connect to a physical ESP32 gateway
-  // ======================================================================
+  
   _stopRealLinks() {
     if (this.ws) { this.ws.onclose = null; this.ws.close(); this.ws = null; }
     if (this.httpTimer) { clearInterval(this.httpTimer); this.httpTimer = null; }
@@ -864,11 +821,7 @@ async setConnectionMode(mode) {
         'Changing connection mode:',
         mode
     );
-
-    // ----------------------------------------------------------
-    // Stop existing connections
-    // ----------------------------------------------------------
-
+  
     this.stopSimulation();
 
     await this.stopSupabase();
@@ -877,9 +830,6 @@ async setConnectionMode(mode) {
 
     this.connectionMode = mode;
 
-    // ----------------------------------------------------------
-    // SIMULATION
-    // ----------------------------------------------------------
 
     if (mode === 'sim') {
 
@@ -898,9 +848,6 @@ async setConnectionMode(mode) {
         return true;
     }
 
-    // ----------------------------------------------------------
-    // SUPABASE
-    // ----------------------------------------------------------
 
     if (mode === 'supabase') {
 
@@ -909,9 +856,6 @@ async setConnectionMode(mode) {
 
     return false;
 }  
-// ======================================================================
-// SUPABASE CLOUD CONNECTION
-// ======================================================================
 
 async startSupabase() {
 
@@ -935,9 +879,6 @@ async startSupabase() {
 
         console.log('Connecting to Supabase...');
 
-        // --------------------------------------------------------------
-        // 1. Check authentication session
-        // --------------------------------------------------------------
 
         const {
             data: { session },
@@ -964,9 +905,6 @@ async startSupabase() {
             return false;
         }
 
-        // --------------------------------------------------------------
-        // Subscribe first so inserts cannot fall into a history/subscription gap.
-        // Rows arriving while history loads are buffered and de-duplicated below.
         this.supabaseBootstrapping = true;
         this.supabaseRealtimeBuffer = [];
 
@@ -982,12 +920,6 @@ async startSupabase() {
             }
         }
 
-        // 2. Load historical telemetry
-        // --------------------------------------------------------------
-
-        // Select the newest real hardware node before requesting its history.
-        // The dashboard's demo default is N1, while the database may use
-        // STREET_LIGHT_01 or another node_id.
         const {
             data: latestRows,
             error: latestRowError
@@ -1022,9 +954,6 @@ async startSupabase() {
             throw new Error('Unable to load telemetry history. Check the table schema and authenticated SELECT policy.');
         }
 
-        // --------------------------------------------------------------
-        // Apply any inserts that arrived during the history query. The history
-        // query seeds the seen-row set, so rows present in both paths are added once.
         const bufferedRows = this.supabaseRealtimeBuffer;
         this.supabaseRealtimeBuffer = [];
         this.supabaseBootstrapping = false;
@@ -1072,10 +1001,6 @@ async startSupabase() {
 }
 
 
-// ======================================================================
-// LOAD HISTORICAL DATA
-// ======================================================================
-
 async loadSupabaseHistory(nodeId) {
 
     if (!window.supabaseClient) return false;
@@ -1110,10 +1035,6 @@ async loadSupabaseHistory(nodeId) {
 
     rows.forEach(row => this._rememberSupabaseRow(row));
 
-    // --------------------------------------------------------------
-    // Clear existing simulated history
-    // --------------------------------------------------------------
-
     const history = {
         labels: [],
         voltage: [],
@@ -1124,9 +1045,6 @@ async loadSupabaseHistory(nodeId) {
         energy: []
     };
 
-    // --------------------------------------------------------------
-    // Convert database rows into chart history
-    // --------------------------------------------------------------
 
     rows.forEach(row => {
 
@@ -1165,10 +1083,6 @@ async loadSupabaseHistory(nodeId) {
     });
 
     this.histories[nodeId] = history;
-
-    // --------------------------------------------------------------
-    // Update current node using latest database row
-    // --------------------------------------------------------------
 
     if (rows.length > 0) {
 
@@ -1214,10 +1128,6 @@ async loadSupabaseHistory(nodeId) {
     return true;
 }
 
-
-// ======================================================================
-// CONVERT SUPABASE ROW → DASHBOARD NODE
-// ======================================================================
 
 convertSupabaseRow(row) {
 
@@ -1266,7 +1176,7 @@ convertSupabaseRow(row) {
             const rawPct = row.brightness_pct != null
                 ? Number(row.brightness_pct)
                 : (pwm / 255) * 100;
-            // Project lighting states are OFF, ECO DIM (30%), and FULL (100%).
+ 
             return [0, 30, 100].reduce((best, value) =>
                 Math.abs(value - rawPct) < Math.abs(best - rawPct) ? value : best, 0);
         })(),
@@ -1332,18 +1242,12 @@ convertSupabaseRow(row) {
     };
 }
 
-
-// ======================================================================
-// SUPABASE REALTIME
-// ======================================================================
-
 async subscribeSupabaseRealtime() {
 
     if (!window.supabaseClient) {
         return;
     }
 
-    // Remove previous channel
     if (this.supabaseChannel) {
 
         await window.supabaseClient
@@ -1434,11 +1338,6 @@ async subscribeSupabaseRealtime() {
     await subscriptionReady;
 }
 
-
-// ======================================================================
-// PROCESS NEW REALTIME TELEMETRY
-// ======================================================================
-
 handleSupabaseRealtime(row) {
 
     if (!row) {
@@ -1458,21 +1357,12 @@ handleSupabaseRealtime(row) {
     const node =
         this.convertSupabaseRow(row);
 
-    // --------------------------------------------------------------
-    // Add unknown node automatically
-    // --------------------------------------------------------------
-
     if (!this.nodes[id]) {
 
         this.nodes[id] = node;
 
         this._createHistory(node);
     }
-
-    // --------------------------------------------------------------
-    // Update node
-    // --------------------------------------------------------------
-
     Object.assign(
         this.nodes[id],
         node
@@ -1485,9 +1375,6 @@ handleSupabaseRealtime(row) {
 
     this.nodes[id].is_online = true;
 
-    // --------------------------------------------------------------
-    // Add sample to history
-    // --------------------------------------------------------------
 
     if (!this.histories[id]) {
 
@@ -1529,7 +1416,7 @@ handleSupabaseRealtime(row) {
         Number(node.energy_kwh) || 0
     );
 
-    // Keep only last 2400 samples
+
     while (
         history.labels.length >
         HISTORY_MAX
@@ -1544,18 +1431,11 @@ handleSupabaseRealtime(row) {
         history.energy.shift();
     }
 
-    // --------------------------------------------------------------
-    // Update mesh
-    // --------------------------------------------------------------
 
     this.emit(
         'nodesUpdate',
         this.getAllNodes()
     );
-
-    // --------------------------------------------------------------
-    // Update selected node
-    // --------------------------------------------------------------
 
     if (
         id === this.selectedNodeId
@@ -1580,10 +1460,6 @@ _rememberSupabaseRow(row) {
 }
 
 
-// ======================================================================
-// CHANGE SELECTED NODE
-// ======================================================================
-
 async loadSelectedNodeFromSupabase(nodeId) {
 
     if (
@@ -1597,10 +1473,6 @@ async loadSelectedNodeFromSupabase(nodeId) {
     );
 }
 
-
-// ======================================================================
-// STOP SUPABASE
-// ======================================================================
 
 async stopSupabase() {
 
