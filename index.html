@@ -5,15 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LoRa Smart Street Light Automation | Industrial IoT Dashboard</title>
   
-  <!-- Modern Industrial Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Dashboard Styling -->
   <link rel="stylesheet" href="styles.css">
   
-  <!-- Chart.js (Local offline copy with CDN fallback) -->
   <script src="js/chart.umd.js"></script>
   <script>
     if (typeof Chart === 'undefined') {
@@ -23,17 +20,13 @@
 </head>
 <body>
 
-  <!-- Background decorative light grids -->
   <div class="dashboard-container">
 
-    <!-- ====================================================================
-         HEADER
-         ==================================================================== -->
     <header class="main-header">
       <div class="brand-section">
         <div class="brand-icon-wrapper">
           <div class="brand-pulse-ring"></div>
-          <!-- Street light pole tower SVG icon -->
+
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2v20M8 6h8M6 9h12M12 2a4 4 0 0 1 4 4v3H8V6a4 4 0 0 1 4-4z"/>
             <path d="M5 22h14"/>
@@ -54,9 +47,8 @@
         </div>
       </div>
 
-      <!-- Live Connection & Hardware Status Strip -->
       <div class="header-status-strip">
-        <!-- Gateway Status -->
+   
         <div class="status-pill-box" id="pillGatewayStatus" title="Dashboard Telemetry Source Status">
           <div class="status-indicator-dot pulse" id="dotGateway"></div>
           <div>
@@ -65,7 +57,6 @@
           </div>
         </div>
 
-        <!-- LoRa RF Link Status -->
         <div class="status-pill-box" id="pillLoraStatus" title="SX1278 868.1MHz RF Channel">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--cyan-primary)" stroke-width="2">
             <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5M12 12h.01M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5M19.1 4.9c3.9 3.9 3.9 10.2 0 14.1"/>
@@ -76,7 +67,6 @@
           </div>
         </div>
 
-        <!-- Last Data Update Time -->
         <div class="status-pill-box" title="Packet Timestamp">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2">
             <circle cx="12" cy="12" r="10"/>
@@ -89,9 +79,8 @@
         </div>
       </div>
 
-      <!-- Header Actions & Node Selection -->
       <div class="header-actions">
-        <!-- Node Selector -->
+        
         <div class="node-selector-container">
           <label for="nodeSelect">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -108,7 +97,6 @@
           </select>
         </div>
 
-        <!-- Gateway Connect Modal Button -->
         <button class="btn-cyber primary" id="btnOpenGatewayModal" title="Configure ESP32 Gateway IP & WebSockets">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
@@ -119,8 +107,6 @@
           Connect Gateway
         </button>
 
-
-        <!-- Emergency / Manual Override Button -->
         <button class="btn-cyber warning" id="btnMasterOverride" title="Toggle Manual Master Override">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
@@ -130,12 +116,8 @@
       </div>
     </header>
 
-    <!-- ====================================================================
-         TOP 8 LIVE MONITORING CARDS
-         ==================================================================== -->
     <section class="live-cards-grid" id="topTelemetryGrid">
       
-      <!-- 1. Voltage -->
       <div class="telemetry-card" style="--card-accent: #00e5ff;">
         <div class="card-top">
           <div class="card-title-group">
@@ -161,7 +143,6 @@
         </div>
       </div>
 
-      <!-- 2. Current -->
       <div class="telemetry-card" style="--card-accent: #38bdf8;">
         <div class="card-top">
           <div class="card-title-group">
@@ -188,7 +169,6 @@
         </div>
       </div>
 
-      <!-- 3. Instantaneous Power -->
       <div class="telemetry-card" style="--card-accent: #818cf8;">
         <div class="card-top">
           <div class="card-title-group">
@@ -214,7 +194,6 @@
         </div>
       </div>
 
-      <!-- 4. Energy Consumed Today -->
       <div class="telemetry-card" style="--card-accent: #34d399;">
         <div class="card-top">
           <div class="card-title-group">
@@ -240,7 +219,6 @@
         </div>
       </div>
 
-      <!-- 5. Light Status -->
       <div class="telemetry-card" style="--card-accent: #fbbf24;">
         <div class="card-top">
           <div class="card-title-group">
@@ -270,7 +248,6 @@
         </div>
       </div>
 
-      <!-- 6. Brightness -->
       <div class="telemetry-card" style="--card-accent: #00e5ff;">
         <div class="card-top">
           <div class="card-title-group">
@@ -304,7 +281,6 @@
         </div>
       </div>
 
-      <!-- 7. Motion Detection -->
       <div class="telemetry-card" style="--card-accent: #f59e0b;">
         <div class="card-top">
           <div class="card-title-group">
@@ -332,7 +308,6 @@
         </div>
       </div>
 
-      <!-- 8. Node Status -->
       <div class="telemetry-card" style="--card-accent: #10b981;">
         <div class="card-top">
           <div class="card-title-group">
@@ -363,12 +338,8 @@
 
     </section>
 
-    <!-- ====================================================================
-         SECTION: SMART LIGHT LOGIC & INTERACTIVE DIGITAL TWIN VISUALIZER
-         ==================================================================== -->
     <div class="logic-and-visualizer-row">
 
-      <!-- Smart Light Logic Decision Flow & Demo Controls -->
       <div class="card-panel">
         <div class="panel-header">
           <div class="panel-title">
@@ -381,13 +352,12 @@
         </div>
 
         <div class="logic-flowchart-container">
-          <!-- Fault banner (shown only while a fault is active on the selected node) -->
+          
           <div class="flow-fault-banner" id="flowFaultBanner" hidden></div>
 
-          <!-- Flow diagram cards representing the 3 operating modes -->
+         
           <div class="flow-step-grid">
             
-            <!-- Logic State 1: DAY -->
             <div class="flow-node-card" id="flowCardDay">
               <div class="flow-node-header">
                 <span class="flow-condition">Mode 1 • Sunlight</span>
@@ -398,7 +368,7 @@
               <span class="brightness-tag">Brightness: 0% • Power: 0.0 W</span>
             </div>
 
-            <!-- Logic State 2: NIGHT + MOTION -->
+
             <div class="flow-node-card active" id="flowCardNightMotion">
               <div class="flow-node-header">
                 <span class="flow-condition">Mode 2 • Traffic</span>
@@ -409,7 +379,6 @@
               <span class="brightness-tag">Brightness: 100% • Power: 5.0 W</span>
             </div>
 
-            <!-- Logic State 3: NIGHT + NO MOTION -->
             <div class="flow-node-card" id="flowCardNightNoMotion">
               <div class="flow-node-header">
                 <span class="flow-condition">Mode 3 • Idle</span>
@@ -422,17 +391,16 @@
 
           </div>
 
-          <!-- Quick Demo Controls (Day/Night, PIR trigger, PWM) -->
+ 
           <div class="demo-control-bar">
 
             <div class="demo-btn-group">
-              <!-- Quick Day/Night Toggle -->
+
               <button class="btn-cyber" id="btnToggleDayNight" title="Simulate covering LDR or shining bright light">
                 <span id="iconDayNight">🌙</span>
                 <span id="txtDayNightToggle">Simulate: Day</span>
               </button>
 
-              <!-- PIR Motion Trigger Button -->
               <button class="btn-cyber primary" id="btnTriggerMotion" title="Simulate vehicle or pedestrian triggering PIR sensor">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -442,7 +410,6 @@
                 Trigger PIR Motion
               </button>
 
-              <!-- Manual Brightness Slider -->
               <div style="display: flex; align-items: center; gap: 0.4rem; background: rgba(0,0,0,0.4); padding: 0.2rem 0.6rem; border-radius: 6px; border: 1px solid var(--border-subtle);">
                 <span style="font-size: 0.7rem; color: var(--text-secondary); font-family: var(--font-mono);">PWM:</span>
                 <input type="range" id="sliderBrightness" min="0" max="100" value="70" style="width: 75px; accent-color: var(--cyan-primary); cursor: pointer;">
@@ -454,7 +421,7 @@
         </div>
       </div>
 
-      <!-- Interactive Digital Twin Street Light Pole Visualizer -->
+
       <div class="card-panel street-visualizer-container">
         <div class="panel-header">
           <div class="panel-title">
@@ -468,39 +435,39 @@
           <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--cyan-primary);" id="lblTwinNode">Node N1 • Sector 4</span>
         </div>
 
-        <!-- 2D Canvas Scene showing Lamp, Road, Dynamic Beam, and Motion Target -->
+
         <div class="visualizer-scene" id="vizScene">
-          <!-- Sky Elements -->
+
           <div class="sky-stars" id="vizStars"></div>
           <div class="sky-daylight" id="vizDaylight"></div>
           <div class="viz-fault-badge" id="vizFaultBadge" hidden></div>
 
-          <!-- Street Ground & Asphalt Road -->
+
           <div class="scene-ground">
             <div class="scene-road-line"></div>
           </div>
 
-          <!-- Street Light Assembly -->
+   
           <div class="lamp-assembly">
-            <!-- Steel Pole Structure -->
+           
             <div class="lamp-pole"></div>
-            <!-- Curved Arm Bracket -->
+  
             <div class="lamp-arm"></div>
-            <!-- LED Luminaire Head -->
+      
             <div class="lamp-luminaire">
               <div class="lamp-bulb" id="vizLampBulb"></div>
-              <!-- Dynamic Light Beam Cone (Directly under luminaire) -->
+            
               <div class="light-beam-cone" id="vizLightCone" style="--beam-opacity: 0.55;"></div>
-              <!-- Ground illumination pool (Directly under luminaire) -->
+         
               <div class="light-road-spot" id="vizRoadSpot" style="--spot-opacity: 0.6;"></div>
             </div>
           </div>
 
-          <!-- Pedestrian / Vehicle Target with Motion Waves -->
+      
           <div class="pedestrian-target" id="vizPedestrian">
             <div class="motion-radar-ring" id="vizRadarRing"></div>
             <div class="pedestrian-avatar">
-              <!-- Moving pedestrian walker SVG -->
+      
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="5" r="2.5" fill="#f59e0b"/>
                 <path d="M12 7.5v6M9 21l3-7 3 7M8 12l4-2 4 2" stroke="#f59e0b" stroke-width="2"/>
@@ -511,7 +478,7 @@
 
         </div>
 
-        <!-- Visualizer Live Telemetry Overlay -->
+  
         <div class="visualizer-telemetry-overlay">
           <div class="viz-stat-badge">
             <span class="viz-stat-label">Lumen Output</span>
@@ -531,9 +498,7 @@
 
     </div>
 
-    <!-- ====================================================================
-         SECTION: STREET LIGHT NODE MONITORING (NODE N1 TELEMETRY)
-         ==================================================================== -->
+
     <div class="card-panel">
       <div class="panel-header">
         <div class="panel-title">
@@ -559,10 +524,10 @@
         </div>
       </div>
 
-      <!-- Comprehensive Grid of Node N1 Telemetry Values -->
+
       <div class="node-details-grid">
         
-        <!-- Node ID & Location -->
+   
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -571,7 +536,7 @@
           <div class="telemetry-row-value" id="nodeDetId">Node N1 (Pole #101)</div>
         </div>
 
-        <!-- LDR Sensor Value -->
+     
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -583,7 +548,7 @@
           </div>
         </div>
 
-        <!-- Ambient Light Condition -->
+      
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -592,7 +557,7 @@
           <div class="telemetry-row-value" id="nodeDetAmbient">Night / Dark</div>
         </div>
 
-        <!-- PIR Motion Status -->
+      
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
@@ -601,7 +566,7 @@
           <div class="telemetry-row-value" id="nodeDetPir" style="color: var(--status-warning);">MOTION DETECTED</div>
         </div>
 
-        <!-- LED Brightness % -->
+
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
@@ -610,7 +575,7 @@
           <div class="telemetry-row-value" id="nodeDetBrightness">70% (PWM: 178)</div>
         </div>
 
-        <!-- Voltage -->
+
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
@@ -619,7 +584,7 @@
           <div class="telemetry-row-value" id="nodeDetVoltage">4.98 V</div>
         </div>
 
-        <!-- Current -->
+
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
@@ -628,7 +593,7 @@
           <div class="telemetry-row-value" id="nodeDetCurrent">320 mA</div>
         </div>
 
-        <!-- Power -->
+
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/></svg>
@@ -637,7 +602,7 @@
           <div class="telemetry-row-value" id="nodeDetPower">1.59 W</div>
         </div>
 
-        <!-- LoRa RSSI -->
+
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V4M22 20v-14"/></svg>
@@ -654,7 +619,7 @@
           </div>
         </div>
 
-        <!-- LoRa SNR -->
+
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -663,7 +628,6 @@
           <div class="telemetry-row-value" id="nodeDetSnr" style="color:var(--status-normal);">+8.5 dB</div>
         </div>
 
-        <!-- Last Packet Received -->
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -672,7 +636,7 @@
           <div class="telemetry-row-value" id="nodeDetLastPkt">15:10:32 (2s ago)</div>
         </div>
 
-        <!-- Packet Count & Health -->
+
         <div class="telemetry-row-item">
           <div class="telemetry-row-label">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
@@ -684,9 +648,6 @@
       </div>
     </div>
 
-    <!-- ====================================================================
-         SECTION: MULTI-NODE OVERVIEW GRID (Permanent Horizontal Scroll Mesh)
-         ==================================================================== -->
     <div class="card-panel" id="multiNodeOverviewPanel">
       <div class="panel-header">
         <div class="panel-title">
@@ -714,13 +675,10 @@
       </div>
 
       <div class="multi-node-grid" id="multiNodeContainer">
-        <!-- Rendered dynamically by JavaScript -->
+  
       </div>
     </div>
 
-    <!-- ====================================================================
-         SECTION: INTERACTIVE REAL-TIME GRAPHS (6 CHARTS)
-         ==================================================================== -->
     <div class="card-panel" id="chartsPanel">
       <div class="panel-header">
         <div class="panel-title">
@@ -744,10 +702,9 @@
         </div>
       </div>
 
-      <!-- 6 Charts in 2-Column Responsive Layout -->
+
       <div class="charts-grid">
-        
-        <!-- Chart 1: Power vs Time -->
+
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-title-group">
@@ -761,7 +718,7 @@
           </div>
         </div>
 
-        <!-- Chart 2: Current vs Time -->
+
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-title-group">
@@ -775,7 +732,7 @@
           </div>
         </div>
 
-        <!-- Chart 3: Voltage vs Time -->
+
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-title-group">
@@ -789,7 +746,7 @@
           </div>
         </div>
 
-        <!-- Chart 4: Brightness vs Time -->
+
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-title-group">
@@ -803,7 +760,7 @@
           </div>
         </div>
 
-        <!-- Chart 5: LDR / Ambient Light vs Time -->
+
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-title-group">
@@ -817,7 +774,6 @@
           </div>
         </div>
 
-        <!-- Chart 6: Energy Consumption vs Time -->
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-title-group">
@@ -834,14 +790,8 @@
       </div>
     </div>
 
-
-
-    <!-- ====================================================================
-         SECTION: LoRa NETWORK METRICS
-         ==================================================================== -->
     <div class="network-grid">
-      
-      <!-- LoRa Network Section -->
+
       <div class="card-panel">
         <div class="panel-header">
           <div class="panel-title">
@@ -901,7 +851,7 @@
           </div>
         </div>
 
-        <!-- RF Physical Parameters Box -->
+ 
         <div style="margin-top: 0.85rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem;">
           <div>Freq: <span style="color:#fff;">868.100 MHz</span></div>
           <div>SF: <span style="color:#fff;">SF7</span></div>
@@ -916,9 +866,6 @@
 
     </div>
 
-    <!-- ====================================================================
-         SECTION: INDUSTRIAL ALERTS & ANOMALY DETECTION PANEL
-         ==================================================================== -->
     <div class="card-panel">
       <div class="panel-header">
         <div class="panel-title">
@@ -934,7 +881,7 @@
         </div>
 
         <div class="alerts-header-actions">
-          <!-- Test Alert Injection (fault demo) -->
+
           <select id="selectTestFault" class="form-control" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;">
             <option value="none">-- Inject Demo Anomaly --</option>
             <option value="dayburn">Unexpected Light ON in Daytime (Dayburn)</option>
@@ -954,15 +901,12 @@
         </div>
       </div>
 
-      <!-- Real-time Alerts Feed -->
       <div class="alerts-container" id="alertsListContainer">
-        <!-- Rendered by JavaScript -->
+    
       </div>
     </div>
 
-    <!-- ====================================================================
-         SECTION: SMART CITY ENERGY CONSERVATION ANALYTICS & AUDIT (ALWAYS THE LAST SECTION)
-         ==================================================================== -->
+
     <div class="card-panel" id="energyAnalyticsPanel">
       <div class="panel-header">
         <div class="panel-title">
@@ -976,7 +920,6 @@
         </span>
       </div>
 
-      <!-- 8 Key Energy Metric Cards -->
       <div class="analytics-summary-grid">
         
         <div class="analytics-stat-card">
@@ -1021,10 +964,8 @@
 
       </div>
 
-      <!-- In-Depth Comparison: Conventional vs Smart Adaptive Street Light -->
       <div class="energy-comparison-container">
         
-        <!-- Left: Comparative Bar Charts -->
         <div class="comparison-col">
           <h3>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1033,7 +974,6 @@
             Nightly Power Consumption Audit
           </h3>
 
-          <!-- Conventional -->
           <div class="comp-bar-wrapper">
             <div class="comp-label-row">
               <span style="color: #f87171; font-weight: 600;">Conventional Street Light (100% Unadjusted)</span>
@@ -1045,7 +985,7 @@
             <span style="font-size: 0.7rem; color: var(--text-muted);">Runs at continuous 100% burn 12 hrs/night regardless of traffic or daylight.</span>
           </div>
 
-          <!-- Smart Adaptive -->
+         
           <div class="comp-bar-wrapper" style="margin-bottom: 0;">
             <div class="comp-label-row">
               <span style="color: var(--status-normal); font-weight: 600;">Smart Adaptive LoRa Light (Autonomous LDR + PIR)</span>
@@ -1058,7 +998,6 @@
           </div>
         </div>
 
-        <!-- Right: Circular Gauge & Impact Metrics -->
         <div class="saving-gauge-box">
           <div class="gauge-circle-wrap">
             <svg viewBox="0 0 120 120">
@@ -1090,7 +1029,7 @@
 
     </div>
 
-  </div> <!-- End .dashboard-container -->
+  </div> 
   <button
   id="btnLogout"
   class="btn-cyber danger"
@@ -1119,9 +1058,6 @@
 
   </button>
 
-  <!-- ====================================================================
-       MODAL 1: GATEWAY WI-FI & WEBSOCKET CONFIGURATION
-       ==================================================================== -->
   <div class="modal-overlay" id="gatewayModal">
     <div class="modal-window">
       <div class="modal-header">
@@ -1198,9 +1134,6 @@
     </div>
   </div>
 
-  <!-- ====================================================================
-       MODAL 2: ADD NEW STREET LIGHT NODE (N5...)
-       ==================================================================== -->
   <div class="modal-overlay" id="addNodeModal">
     <div class="modal-window">
       <div class="modal-header">
@@ -1243,44 +1176,13 @@
   </div>
 
 
-
-  <!-- Dashboard JavaScript Modules -->
-  <!-- ============================================================
-     EXTERNAL LIBRARIES
-     ============================================================ -->
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
- <!-- ============================================================
-     SUPABASE
-     ============================================================ -->
-
  <script src="./js/supabase.js"></script>
-
-
- <!-- ============================================================
-     AUTHENTICATION
-     MUST LOAD BEFORE app.js
-     ============================================================ -->
-
  <script src="./js/auth.js"></script>
-
-
- <!-- ============================================================
-     PROJECT SERVICES
-     ============================================================ -->
-
  <script src="./js/data-service.js"></script>
-
-
- <!-- ============================================================
-     DASHBOARD MODULES
-     ============================================================ -->
-
  <script src="./js/charts.js"></script>
-
  <script src="./js/smart-light-visualizer.js"></script>
-
  <script src="./js/app.js"></script>
 
 </body>
