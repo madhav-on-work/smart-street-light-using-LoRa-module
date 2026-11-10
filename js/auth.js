@@ -1,25 +1,8 @@
-/**
- * ============================================================
- * SMART STREET LIGHT DASHBOARD
- * SUPABASE AUTHENTICATION GUARD
- * ============================================================
- *
- * Responsibilities:
- * 1. Verify an active Supabase session.
- * 2. Prevent unauthorized access to index.html.
- * 3. Provide a single logout function.
- * 4. Redirect unauthenticated users to login.html.
- */
-
 (function () {
   'use strict';
 
-  /**
-   * Check whether the user has an active Supabase session.
-   */
   async function requireAuthentication() {
 
-    // Supabase client must already exist.
     if (!window.supabaseClient) {
       console.error(
         '[AUTH] Supabase client is not available.'
@@ -46,7 +29,6 @@
         return false;
       }
 
-      // No active session.
       if (!data || !data.session) {
         console.warn(
           '[AUTH] No active session. Redirecting to login.'
@@ -75,10 +57,6 @@
     }
   }
 
-
-  /**
-   * Logout the current Supabase user.
-   */
   async function logoutDashboard() {
 
     const logoutButton =
@@ -126,7 +104,6 @@
         '[AUTH] Logout successful.'
       );
 
-      // Replace prevents browser Back from simply restoring dashboard.
       window.location.replace('./login.html');
 
     } catch (error) {
@@ -147,8 +124,6 @@
     }
   }
 
-
-  // Make functions globally available.
   window.requireAuthentication =
     requireAuthentication;
 
