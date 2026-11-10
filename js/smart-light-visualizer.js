@@ -1,14 +1,7 @@
-/**
- * SmartLightVisualizer - Digital Twin & Canvas Physics Simulation
- * Controls the realistic 2D Street Light Pole, light beam cone, pedestrian walk,
- * Day/Night sky transitions and fault indications in real time.
- */
-
 class SmartLightVisualizer {
   constructor(dataService) {
     this.dataService = dataService;
 
-    // DOM Elements
     this.scene = document.getElementById('vizScene');
     this.stars = document.getElementById('vizStars');
     this.daylight = document.getElementById('vizDaylight');
@@ -33,13 +26,11 @@ class SmartLightVisualizer {
     this.dataService.on('telemetry', (node) => {
       this.updateVisuals(node);
     });
-    // Keep the pedestrian path correct if the scene is resized
     window.addEventListener('resize', () => {
       this.updateVisuals(this.dataService.getSelectedNode());
     });
   }
 
-  // Horizontal distance (px) from the pedestrian's resting spot to the point directly under the lamp
   walkOffset() {
     if (!this.assembly || !this.luminaire || !this.pedestrian) return -140;
     const lampCenter = this.assembly.offsetLeft + this.luminaire.offsetLeft + this.luminaire.offsetWidth / 2;
@@ -64,10 +55,9 @@ class SmartLightVisualizer {
     const isDayburn = node.fault === 'dayburn';
     const isDead = !node.is_online || node.fault === 'poweroutage';
     const isDay = node.ambient_cond === 'DAY';
-    const brightness = isDead ? 0 : node.brightness_pct; // 0 - 100
+    const brightness = isDead ? 0 : node.brightness_pct;
     const motion = node.motion_detected === 1 && !isDead;
 
-    // 0. Fault styling on the whole scene
     if (this.scene) {
       this.scene.classList.toggle('fault-dayburn', isDayburn);
       this.scene.classList.toggle('fault-dead', isDead);
@@ -78,8 +68,6 @@ class SmartLightVisualizer {
       this.faultBadge.hidden = !label;
       this.faultBadge.textContent = label ? `⚠ ${label}` : '';
     }
-
-    // 1. Sky transition (Day vs Night)
     if (this.stars && this.daylight) {
       if (isDay) {
         this.stars.style.opacity = '0';
@@ -90,7 +78,6 @@ class SmartLightVisualizer {
       }
     }
 
-    // 2. Light cone + road pool: always centred directly under the luminaire (CSS)
     if (this.lightCone && this.roadSpot && this.lampBulb) {
       if (brightness === 0) {
         this.lightCone.style.opacity = '0';
@@ -99,7 +86,7 @@ class SmartLightVisualizer {
         this.lampBulb.style.boxShadow = 'none';
       } else {
         const normalized = brightness / 100;
-        // In a day-burn fault the beam is drawn stronger so it stays visible against the bright sky
+        
         const beamAlpha = (isDayburn ? 0.85 : 0.2 + normalized * 0.65).toFixed(2);
         const spotAlpha = (isDayburn ? 0.85 : 0.25 + normalized * 0.6).toFixed(2);
 
@@ -108,7 +95,6 @@ class SmartLightVisualizer {
         this.roadSpot.style.opacity = '1';
         this.roadSpot.style.setProperty('--spot-opacity', spotAlpha);
 
-        // Keep horizontal centering (translateX(-50%)) while scaling width
         const scaleX = (0.8 + normalized * 0.35).toFixed(2);
         this.lightCone.style.transform = `translateX(-50%) scaleX(${scaleX})`;
         this.roadSpot.style.transform = `translateX(-50%) scaleX(${scaleX})`;
@@ -117,7 +103,7 @@ class SmartLightVisualizer {
           this.lampBulb.style.background = '#ffd0c8';
           this.lampBulb.style.boxShadow = '0 0 14px #ff5a4a, 0 0 30px rgba(255, 90, 74, 0.8)';
         } else if (brightness <= 30 && !isDay) {
-          // Warm white at 30%
+        
           this.lampBulb.style.background = '#fef08a';
           this.lampBulb.style.boxShadow = '0 0 12px #fef08a, 0 0 20px rgba(254, 240, 138, 0.4)';
         } else {
@@ -127,7 +113,6 @@ class SmartLightVisualizer {
       }
     }
 
-    // 3. Pedestrian walks to the spot directly under the lamp
     if (this.pedestrian && this.radarRing) {
       if (motion) {
         this.pedestrian.style.opacity = '1';
@@ -140,7 +125,7 @@ class SmartLightVisualizer {
       }
     }
 
-    // 4. Telemetry Overlay
+   
     if (this.lumenVal) {
       const lumens = Math.round((brightness / 100) * 3500);
       this.lumenVal.textContent = brightness === 0 ? '0 lm (OFF)' : `${lumens.toLocaleString()} lm`;
