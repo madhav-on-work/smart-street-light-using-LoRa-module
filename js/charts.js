@@ -1,14 +1,3 @@
-/**
- * ChartsManager - Real-Time Dark Neon Industrial Waveform Charts
- * Uses Chart.js with a high-contrast cyber theme and streaming buffers.
- *
- * Axis rules
- *  - Every axis starts at 0.
- *  - Every chart has a generous default upper limit, and the limit grows
- *    automatically if the data ever goes higher, so a line can never leave the box.
- */
-
-// Round a value UP to a "nice" axis limit (1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10 x 10^n)
 function niceCeil(v) {
   if (!isFinite(v) || v <= 0) return 1;
   const base = Math.pow(10, Math.floor(Math.log10(v)));
@@ -27,10 +16,8 @@ class ChartsManager {
     this.isPaused = false;
     this.currentRange = 'live';
 
-    // Samples shown per time window (one sample every 1.5 s)
     this.WINDOWS = { live: 20, '5m': 200, '15m': 600, '1h': 2400 };
 
-    // Chart definitions. `max` = default upper limit (axis always starts at 0).
     this.defs = [
       { key: 'power',      canvas: 'chartPower',      val: 'chartValPower',      unit: 'W',   color: '#818cf8', fill: 'rgba(129, 140, 248, 0.12)', max: 6,     dynamic: true,  fmt: v => `${Number(v).toFixed(2)} W` },
       { key: 'current',    canvas: 'chartCurrent',    val: 'chartValCurrent',    unit: 'mA',  color: '#38bdf8', fill: 'rgba(56, 189, 248, 0.12)',  max: 1000,  dynamic: true,  fmt: v => `${v} mA` },
@@ -44,7 +31,6 @@ class ChartsManager {
     this.attachDataListener();
   }
 
-  // Base styling for dark cyber theme
   getBaseChartOptions(unit, color, max) {
     return {
       responsive: true,
@@ -151,14 +137,10 @@ class ChartsManager {
 
     this.refresh(true);
   }
-
-  // Are the charts currently on screen? (the panel is hidden in "All Nodes" view)
   isVisible() {
     const panel = document.getElementById('chartsPanel');
     return !panel || panel.offsetParent !== null;
   }
-
-  // Redraw every chart from the selected node's history
   refresh(force = false) {
     if (!force && (this.isPaused || !this.isVisible())) return;
 
@@ -174,7 +156,6 @@ class ChartsManager {
       chart.data.labels = labels;
       chart.data.datasets[0].data = data;
 
-      // Auto-grow the upper limit if the data ever exceeds the default
       if (d.dynamic) {
         const peak = data.length ? Math.max(...data) : 0;
         chart.options.scales.y.max = Math.max(d.max, niceCeil(peak * 1.1));
@@ -187,8 +168,6 @@ class ChartsManager {
       if (el) el.textContent = d.fmt(last);
     });
   }
-
-  // Needed after the panel was hidden (canvases measure 0px while display:none)
   resizeAll() {
     Object.values(this.charts).forEach(c => c.resize());
   }
