@@ -1,10 +1,3 @@
-/**
- * ============================================================
- * SMART STREET LIGHT
- * SUPABASE LOGIN CONTROLLER
- * ============================================================
- */
-
 document.addEventListener(
   'DOMContentLoaded',
   async () => {
@@ -26,11 +19,6 @@ document.addEventListener(
     const loginButton =
       document.getElementById('loginButton');
 
-
-    // ----------------------------------------------------------
-    // Basic DOM validation
-    // ----------------------------------------------------------
-
     if (
       !form ||
       !emailInput ||
@@ -45,11 +33,6 @@ document.addEventListener(
       return;
     }
 
-
-    // ----------------------------------------------------------
-    // Supabase validation
-    // ----------------------------------------------------------
-
     if (!window.supabaseClient) {
 
       errorBox.textContent =
@@ -61,11 +44,6 @@ document.addEventListener(
 
       return;
     }
-
-
-    // ----------------------------------------------------------
-    // If already logged in, go to dashboard
-    // ----------------------------------------------------------
 
     try {
 
@@ -103,11 +81,6 @@ document.addEventListener(
       );
     }
 
-
-    // ----------------------------------------------------------
-    // LOGIN FORM
-    // ----------------------------------------------------------
-
     form.addEventListener(
       'submit',
       async (event) => {
@@ -123,7 +96,6 @@ document.addEventListener(
           passwordInput.value;
 
 
-        // Basic validation
         if (!email || !password) {
 
           errorBox.textContent =
@@ -133,7 +105,6 @@ document.addEventListener(
         }
 
 
-        // Lock button during authentication
         loginButton.disabled = true;
 
         loginButton.textContent =
@@ -153,10 +124,6 @@ document.addEventListener(
               });
 
 
-          // ----------------------------------------------------
-          // Login failed
-          // ----------------------------------------------------
-
           if (error) {
 
             console.error(
@@ -175,10 +142,6 @@ document.addEventListener(
             return;
           }
 
-
-          // ----------------------------------------------------
-          // Login successful
-          // ----------------------------------------------------
 
           if (!data || !data.session) {
 
@@ -204,7 +167,6 @@ document.addEventListener(
           );
 
 
-          // Redirect to protected dashboard
           window.location.replace(
             './index.html'
           );
@@ -228,10 +190,6 @@ document.addEventListener(
       }
     );
 
-
-    // ----------------------------------------------------------
-    // Convert Supabase errors into user-friendly messages
-    // ----------------------------------------------------------
 
     function getLoginErrorMessage(error) {
 
